@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why is the price of gold hitting record highs?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* Bố cục chính cho nội dung (Flexbox cho 2 cột) */
+        .main-content-wrapper {
+            display: flex;
+            max-width: 1300px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+        
+        /* Container khi ở Level 2 (ẩn sidebar) */
+        .main-content-wrapper.center-content {
+            justify-content: center;
+        }
+        
+        .main-content-wrapper.center-content > .container {
+            margin: 0;
+        }
+        
+        /* --- Cột bên trái: Hộp từ khóa cố định --- */
+        .sidebar {
+            width: 400px;
+            flex-shrink: 0;
+            position: sticky; 
+            top: 20px; 
+            align-self: flex-start; 
+            max-height: calc(100vh - 40px); 
+            overflow-y: auto;
+            padding-right: 10px; 
+        }
+        
+        /* Ẩn sidebar khi cần */
+        .sidebar.hidden {
+            display: none;
+        }
+
+        .all-keys {
+            background: #EBF2E8;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #EBF2E8;
+        }
+
+        .all-keys-title {
+            font-weight: bold;
+            color: #36454F;
+            margin-bottom: 10px; 
+            font-size: 1.1em;
+            display: flex;
+            flex-direction: column; 
+            gap: 5px;
+        }
+        
+        /* --- Cột nội dung chính bên phải (Container) --- */
+        .container {
+            flex-grow: 1; 
+            max-width: 870px; 
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .level-indicator {
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .all-keys-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px; 
+        }
+
+        .key-word {
+            background: white;
+            color: #36454F;
+            padding: 5px 10px; 
+            border-radius: 6px; 
+            font-weight: 530;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #2196f3; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            user-select: text;
+            font-size: 14px; 
+            font-family: monospace;
+            line-height: 1.2;
+        }
+
+        .key-word:hover {
+            background: #e3f2fd;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .key-word:active {
+            transform: scale(0.98);
+            background: #bbdefb;
+        }
+        
+        .key-word.used {
+            background: #e0e0e0; 
+            color: #757575; 
+            border-color: #9e9e9e; 
+            text-decoration: line-through; 
+            opacity: 0.8; 
+            cursor: pointer; 
+            pointer-events: auto; 
+        }
+        
+        .key-word.used:hover {
+            background: #cccccc;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Thu ngắn khoảng cách đoạn văn */
+        .paragraph {
+            margin-bottom: 8px;
+            line-height: 1.5; 
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        input[type="text"] {
+            border: none;
+            border-bottom: 2px solid #667eea;
+            background: white;
+            padding: 2px 6px; 
+            font-size: 0.95em; 
+            font-family: inherit;
+            min-width: 50px;
+            transition: all 0.3s;
+            text-align: center;
+            display: inline-block; 
+            line-height: 1.5; 
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-bottom-color: #764ba2;
+            background: #f0f4ff;
+        }
+
+        input.correct {
+            background: #c8e6c9;
+            border-bottom-color: #4caf50;
+            font-weight: 500;
+        }
+
+        input.incorrect {
+            background: #ffcdd2;
+            border-bottom-color: #f44336;
+            font-weight: 500;
+        }
+
+        .correction {
+            color: #f44336;
+            font-weight: bold;
+            margin-left: 8px;
+            font-size: 0.95em;
+            display: inline-block;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.05em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .next-btn {
+            right: 20px;
+        }
+
+        .prev-btn {
+            left: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .score {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Điều chỉnh cho màn hình nhỏ (Mobile/Tablet) */
+        @media (max-width: 1000px) {
+            .main-content-wrapper {
+                flex-direction: column; 
+                gap: 0;
+            }
+            
+            .sidebar {
+                width: 100%; 
+                position: static; 
+                max-height: none;
+                overflow-y: visible;
+                padding: 0 20px; 
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .all-keys {
+                margin-bottom: 20px;
+            }
+            
+            .main-content-wrapper.center-content {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content-wrapper" id="mainWrapper">
+        
+        <div class="sidebar" id="sidebarContainer">
+            <div id="level1SidebarContent">
+                <div class="all-keys">
+                    <div class="all-keys-title">
+                        <span>📝 Tất cả động từ cần điền</span>
+                        <span style="font-size: 0.85em; color: #36454F; font-weight: normal;">(Nhấn vào từ để copy và đánh dấu/hủy đánh dấu)</span>
+                    </div>
+                    <div class="all-keys-content" id="allKeysContent"></div>
+                </div>
+            </div>
+            <div id="level2SidebarContent" class="hidden">
+            </div>
+        </div>
+
+        <div class="container">
+            <h1>🎯 Why is the price of gold hitting record highs?</h1>
+            <div class="level-indicator" id="levelIndicator">Level 1: Điền động từ với gợi ý</div>
+            
+            <div id="level1" class="level-content">
+                <div id="paragraphsLevel1"></div>
+            </div>
+
+            <div id="level2" class="level-content hidden">
+                <div id="paragraphsLevel2"></div>
+            </div>
+
+            <div class="button-container">
+                <button class="submit-btn" onclick="checkAnswers()">✓ Nộp Bài</button>
+                <button class="reset-btn" onclick="resetExercise()">↻ Làm Lại</button>
+            </div>
+
+            <div class="score" id="scoreDisplay"></div>
+        </div>
+    </div>
+
+    <button class="nav-btn next-btn" id="nextBtn" onclick="goToLevel2()">→</button>
+    <button class="nav-btn prev-btn hidden" id="prevBtn" onclick="goToLevel1()">←</button>
+
+    <script>
+        // MẢNG ĐÃ CẬP NHẬT/XÁO TRỘN ĐỘNG TỪ
+        const textData = `The price of gold has ___ (1) as investors ___ (2) out safe havens amid heightened economic uncertainty.
+
+The gold market is ___ (3) as investors ___ (4) a safe haven for their investments amid global economic uncertainty.
+
+The price of gold has ___ (5) by nearly a third over the past year, ___ (6) $3,550 per ounce on Wednesday to ___ (7) an all-time high.
+
+Some analysts ___ (8) prices to ___ (9) amid a tumultuous geopolitical environment.
+
+Gold has been ___ (10) by investors during periods of uncertainty or upheaval because its value is ___ (11) relatively stable, especially compared with stocks, ___ (12) Tim Waterer, chief market analyst at KCM Trade in Australia.
+
+"The one thing financial markets ___ (13) is uncertainty, and in such scenarios, gold is usually the go-to asset for traders," Waterer ___ (14) Al Jazeera.
+
+While gold has ___ (15) only modest returns, its price has ___ (16) sharply over the past two years amid a tumultuous international environment ___ (17) by the wars in Ukraine and Gaza and United States President Donald Trump's trade war.
+
+Gold was ___ (18) by investors who are distrustful of governments and financial institutions because it is a commodity that can be ___ (19) and ___ (20).
+
+There are two main methods of ___ (21) gold.
+
+The first is through the purchase of bullion in the form of bars, ingots, jewellery, or coins.
+
+The second option is to ___ (22) financial products.
+
+Investors ___ (23) and ___ (24) gold futures – contracts to ___ (25) or ___ (26) gold at a certain price – and exchange-traded funds that ___ (27) gold's price.
+
+While bullion is straightforward for individuals to purchase, financial products ___ (28) institutions the benefit of not ___ (29) to physically ___ (30) or ___ (31) large quantities of the metal.
+
+Gold typically is ___ (32) in US dollars, and its value has an inverse relationship with the currency.
+
+If the dollar ___ (33), the price of gold usually ___ (34) and vice versa.
+
+The price of gold ___ (35) in April when Trump ___ (36) his "Liberation Day" tariffs on much of the world, ___ (37) a period of major uncertainty about the future of global trade.
+
+Trump's ongoing attacks on the independence of the US Federal Reserve, which has been ___ (38) as above politics, have ___ (39) ___ (40) prices higher more recently.
+
+Trump repeatedly has ___ (41) the central bank to ___ (42) interest rates to ___ (43) economic growth and ___ (44) his wish for the value of the dollar to ___ (45) to ___ (46) US exports cheaper.
+
+Either scenario ___ (47) gold more attractive to investors, ___ (48) Kyle Rodda, a senior financial market analyst at Capital.com.
+
+"If interest rates ___ (49), gold ___ (50) less appealing because I can ___ (51) more for my money by ___ (52) it in an interest-bearing asset, like a bank account," Rodda ___ (53) Al Jazeera.
+
+"However, if interest rates ___ (54), I ___ (55) less interest ___ (56) to me, ___ (57) gold relatively more attractive to ___ (58)."
+
+The same is true for other interest-bearing assets, such as bonds.
+
+Foreign investors ___ (59) in currencies other than the dollar also may ___ (60) to ___ (61) more gold as the US currency ___ (62), since they can ___ (63) more value for their money, Rodda ___ (64).
+
+Economic jitters elsewhere also have ___ (65) the case for gold.
+
+The British sterling and the Japanese yen have ___ (66) in recent days amid concerns over the worsening state of the public finances in the United Kingdom and Japan.
+
+The yen has been ___ (67) by instability in Japan's governing party.
+
+"When your currency is ___ (68) value, gold is ___ (69) as a good asset to protect against inflation risks because, unlike currencies, gold's supply is more finite in nature and therefore less prone to price dilution.
+
+It ___ (70) true for other countries too, such as Turkey and Egypt," Waterer ___ (71).
+
+Gold is an increasingly popular option for foreign governments that ___ (72) to ___ (73) large quantities of US dollars ___ (74) from trade, but have less confidence in government bonds under Trump, ___ (75) Rodda.
+
+"Generally, a country can ___ (76) these dollars to ___ (77) Treasuries to ___ (78) the money somewhere safe and ___ (79) an interest rate on it," Rodda ___ (80).
+
+"President Trump's trade policy ___ (81) confidence in ___ (82) US assets, especially amongst its strategic adversaries.
+
+As a result, those countries ___ (83) lots of dollars are ___ (84) them to ___ (85) gold instead as a store of value, ___ (86) the gold price."`;
+
+        // MẢNG ĐỘNG TỪ ĐÃ XÁO TRỘN ĐỂ LÀM KHÓ BÀI TẬP
+        const answers = [
+            "earnest", "slumped", "using", "buy", "cut", "stimulate", "expressed", "fall", "make",
+            "considered", "said", "hate", "told", "produced", "risen", "beset", "favoured", "owned", 
+            "store", "buy", "buy", "sell", "track", "offer", "having", "handle", "stored", "dominated", 
+            "falls", "rises", "surged", "unveiled", "setting off", "viewed", "helped", "drive", "pressured", 
+            "making", "hold", "trading", "look", "buy", "falls", "get", "said", "bolstered", "soared", 
+            "seek", "booming", "seek", "risen", "surpassing", "hit", "expect", "keep climbing", "favoured",
+            "get", "paid", "comes", "said", "need", "store", "generated", "said", "use", "park", "earn", 
+            "said", "reduced", "holding", "holding", "pushing", "trading", "trade", "sell",
+            "losing", "seen", "makes", "said", "rise", "becomes", "get", "parking"
+        ];
+        
+        let usedWords = new Array(answers.length).fill(false);
+        let currentLevel = 1;
+        let inputIndexCounter = 0; 
+
+        function createParagraphs(container, level) {
+            container.innerHTML = '';
+            inputIndexCounter = 0;
+            
+            const paragraphs = textData.split('\n\n').filter(p => p.trim());
+            
+            paragraphs.forEach(para => {
+                const paraDiv = document.createElement('div');
+                paraDiv.className = 'paragraph';
+                
+                let html = para;
+                const blankPattern = /___\s*\((\d+)\)/g;
+                
+                html = html.replace(blankPattern, (match, num) => {
+                    const answerIndex = parseInt(num) - 1;
+                    const correctAnswer = answers[answerIndex];
+                    const inputId = `input-l${level}-${answerIndex}`; 
+                    
+                    const numWords = correctAnswer.split(' ').length;
+                    let minWidth = 45 + (numWords - 1) * 12; 
+                    if (minWidth > 100) minWidth = 100; 
+                    
+                    return `<input type="text" id="${inputId}" data-index="${answerIndex}" data-correct="${correctAnswer}" style="min-width: ${minWidth}px;"> (${num})`;
+                });
+                
+                paraDiv.innerHTML = html;
+                container.appendChild(paraDiv);
+            });
+        }
+
+        function initLevel1() {
+            const allKeysContainer = document.getElementById('allKeysContent');
+            allKeysContainer.innerHTML = '';
+            
+            // Chỉ hiển thị các từ duy nhất trong sidebar
+            const uniqueWords = [...new Set(answers)]; // Lấy các từ duy nhất
+            
+            uniqueWords.forEach((word) => {
+                // Tìm index đầu tiên của từ này trong mảng answers
+                const firstIndex = answers.indexOf(word);
+                
+                const span = document.createElement('span');
+                span.className = 'key-word';
+                span.textContent = word;
+                span.dataset.wordIndex = firstIndex; // Dùng index đầu tiên
+                
+                // Kiểm tra xem từ này đã được dùng ở bất kỳ vị trí nào chưa
+                let isUsed = false;
+                for (let i = 0; i < answers.length; i++) {
+                    if (answers[i] === word && usedWords[i]) {
+                        isUsed = true;
+                        break;
+                    }
+                }
+                
+                if (isUsed) {
+                    span.classList.add('used');
+                }
+                
+                span.onclick = function() {
+                    if (currentLevel === 1) {
+                        // Khi click, ta toggle TẤT CẢ các vị trí của từ này
+                        const currentlyUsed = span.classList.contains('used');
+                        let newUsedState = !currentlyUsed;
+                        
+                        for (let i = 0; i < answers.length; i++) {
+                            if (answers[i] === word) {
+                                usedWords[i] = newUsedState;
+                            }
+                        }
+                        
+                        // Cập nhật giao diện
+                        if (newUsedState) {
+                            span.classList.add('used');
+                            copyToClipboard(word);
+                            showCopyNotification(`✓ Đã chọn & copy: ${word}`, 'green');
+                        } else {
+                            span.classList.remove('used');
+                            showCopyNotification(`🗑️ Đã hủy chọn: ${word}`, 'orange');
+                        }
+                    }
+                };
+                allKeysContainer.appendChild(span);
+            });
+            
+            createParagraphs(document.getElementById('paragraphsLevel1'), 1);
+            
+            document.getElementById('level1SidebarContent').classList.remove('hidden');
+            document.getElementById('level2SidebarContent').classList.add('hidden');
+        }
+
+        function initLevel2() {
+            createParagraphs(document.getElementById('paragraphsLevel2'), 2);
+            document.getElementById('level1SidebarContent').classList.add('hidden');
+            document.getElementById('level2SidebarContent').classList.remove('hidden');
+        }
+
+        // Hàm này xử lý việc toggle trạng thái 'used'
+        function toggleWordStatus(word, element) {
+            // Logic đã được chuyển vào initLevel1 để xử lý các từ trùng lặp
+            // Ta gọi lại hàm click của phần tử
+            element.click();
+        }
+        
+        function copyToClipboard(word) {
+            navigator.clipboard.writeText(word).catch(err => {
+                const textarea = document.createElement('textarea');
+                textarea.value = word;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            });
+        }
+
+        function showCopyNotification(message, type) {
+            const oldNotif = document.querySelector('.copy-notification');
+            if (oldNotif) {
+                oldNotif.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = 'copy-notification';
+            notification.innerHTML = message;
+            
+            if (type === 'orange') {
+                notification.style.background = '#ff9800';
+            } else if (type === 'green') {
+                notification.style.background = '#4caf50';
+            }
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 2000);
+        }
+
+        function checkAnswers() {
+            const levelContainer = document.getElementById(`level${currentLevel}`);
+            const inputs = levelContainer.querySelectorAll('input[type="text"]');
+            let correct = 0;
+            let total = 0;
+            
+            inputs.forEach(input => {
+                total++;
+                const userAnswer = input.value.trim().toLowerCase().replace(/\s+/g, ' '); 
+                const correctAnswer = input.dataset.correct.toLowerCase();
+                
+                input.className = '';
+                
+                let correction = input.nextElementSibling;
+                if (correction && correction.classList.contains('correction')) {
+                    correction.remove();
+                }
+                
+                input.disabled = true;
+                
+                if (userAnswer === correctAnswer) {
+                    input.classList.add('correct');
+                    correct++;
+                } else {
+                    input.classList.add('incorrect');
+                    correction = document.createElement('span');
+                    correction.className = 'correction';
+                    const displayCorrect = input.dataset.correct.charAt(0).toUpperCase() + input.dataset.correct.slice(1);
+                    correction.textContent = `→ ${displayCorrect}`;
+                    input.parentNode.insertBefore(correction, input.nextSibling);
+                }
+            });
+            
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            if (total > 0) {
+                const percentage = Math.round((correct / total) * 100) || 0;
+                scoreDisplay.innerHTML = `📊 Kết quả: ${correct}/${total} đúng (${percentage}%)`;
+            } else {
+                scoreDisplay.innerHTML = "Không có từ nào để chấm điểm.";
+            }
+        }
+
+        function resetExercise() {
+            const levelContainer = document.getElementById(`level${currentLevel}`);
+            const inputs = levelContainer.querySelectorAll('input[type="text"]');
+            
+            inputs.forEach(input => {
+                input.value = '';
+                input.className = '';
+                input.disabled = false;
+                
+                const correction = input.nextElementSibling;
+                if (correction && correction.classList.contains('correction')) {
+                    correction.remove();
+                }
+            });
+
+            if (currentLevel === 1) {
+                usedWords.fill(false);
+                initLevel1(); // Gọi lại initLevel1 để reset sidebar
+            }
+            
+            document.getElementById('scoreDisplay').innerHTML = '';
+        }
+
+        function goToLevel2() {
+            currentLevel = 2;
+            document.getElementById('level1').classList.add('hidden');
+            document.getElementById('level2').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('prevBtn').classList.remove('hidden');
+            document.getElementById('levelIndicator').textContent = 'Level 2: Tự điền động từ (Không có gợi ý)';
+            
+            document.getElementById('sidebarContainer').classList.add('hidden'); 
+            document.getElementById('mainWrapper').classList.add('center-content');
+            
+            resetExercise();
+            initLevel2(); // Đảm bảo level 2 được tạo lại mà không có sidebar
+        }
+
+        function goToLevel1() {
+            currentLevel = 1;
+            document.getElementById('level2').classList.add('hidden');
+            document.getElementById('level1').classList.remove('hidden');
+            document.getElementById('prevBtn').classList.add('hidden');
+            document.getElementById('nextBtn').classList.remove('hidden');
+            document.getElementById('levelIndicator').textContent = 'Level 1: Điền động từ với gợi ý';
+            
+            document.getElementById('sidebarContainer').classList.remove('hidden'); 
+            document.getElementById('mainWrapper').classList.remove('center-content');
+            
+            resetExercise();
+            initLevel1(); // Đảm bảo level 1 được tạo lại với sidebar
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initLevel1();
+            initLevel2();
+            document.getElementById('level2').classList.add('hidden');
+            document.getElementById('level2SidebarContent').classList.add('hidden'); 
+            document.getElementById('mainWrapper').classList.remove('center-content');
+            initLevel1(); // Gọi lại để đảm bảo sidebar render đúng
+        });
+    </script>
+    
+</body>
+</html>
